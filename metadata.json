@@ -1,0 +1,6 @@
+{
+  "name": "HOMY SHOP AI CTF",
+  "description": "A Thai e-commerce prompt injection CTF game with 4 escalating levels.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
