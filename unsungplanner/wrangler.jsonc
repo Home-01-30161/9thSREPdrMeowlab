@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "unsungplanner",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "main": "vinext/server/app-router-entry",
+  "preview_urls": true,
+  "assets": {
+    "not_found_handling": "none",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "vars": {
+    "DAILY_PLAN_LIMIT": "100",
+    "PLAN_PER_IP_LIMIT": "50",
+    "NEXT_PUBLIC_APP_URL": "https://unsungplanner.pongchai-bw.workers.dev",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "554320147197-uuq13rq98apuofu689qbistq8fka7ep3.apps.googleusercontent.com",
+    "NEXT_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAF3r3LXkTsm0gqCd"
+  }
+}

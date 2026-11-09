@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), "Kanit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Immersive UI Theme Variables */
+  --color-bg: #0d1117;
+  --color-card-bg: #161b22;
+  --color-border: #30363d;
+  --color-accent: #58a6ff;
+  --color-success: #238636;
+  --color-danger: #da3633;
+  --color-text: #c9d1d9;
+  --color-text-muted: #8b949e;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text antialiased;
+    font-family: var(--font-sans), "Kanit", sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  ::selection {
+    background-color: rgba(88, 166, 255, 0.3);
+  }
+}
+
+.terminal-box {
+  background: #000;
+  border: 1px solid var(--color-success);
+  color: #39ff14;
+  font-family: var(--font-mono);
+  padding: 1rem;
+  box-shadow: 0 0 20px rgba(35, 134, 54, 0.2);
+}
+
+.agent-bubble {
+  @apply bg-border self-start rounded-2xl rounded-bl-none px-4 py-2.5 text-sm leading-relaxed;
+  max-width: 85%;
+}
+
+.user-bubble {
+  @apply bg-accent text-white self-end rounded-2xl rounded-br-none px-4 py-2.5 text-sm leading-relaxed;
+  max-width: 85%;
+}
+
+.homy-card {
+  @apply bg-card-bg border border-border rounded-xl overflow-hidden shadow-lg transition-all duration-300;
+}
+
+.homy-card:hover {
+  @apply border-accent/50;
+}
+
+.homy-card-active {
+  @apply border-accent;
+  box-shadow: 0 0 15px rgba(88, 166, 255, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+@keyframes move {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100vh); }
+}
+
+.animate-scan {
+  animation: move 3s linear infinite;
+}
+
+/* Cart sidebar slide-in */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Win overlay vault-door animation */
+@keyframes vaultOpen {
+  from {
+    transform: scale(0.75) rotateY(-12deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+.win-overlay-enter {
+  animation: vaultOpen 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
