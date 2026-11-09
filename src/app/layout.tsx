@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Sarabun, JetBrains_Mono } from 'next/font/google';
+import { Kanit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const sarabun = Sarabun({
+const kanit = Kanit({
   subsets: ['thai', 'latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-sans',
   display: 'swap',
 });
@@ -26,8 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${sarabun.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${kanit.variable} ${jetbrainsMono.variable}`}>
+      <body className={kanit.className}>{children}</body>
     </html>
   );
 }
+

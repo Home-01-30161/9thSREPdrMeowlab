@@ -14,9 +14,17 @@ A Thai e-commerce prompt injection CTF game with 4 escalating levels built with 
    ```bash
    npm install
    ```
-2. (Optional) Set your API key in `.env.local` if using OpenClaw / AI features:
+2. (Optional) Set your Typhoon (OpenTyphoon.ai) API key in `.env.local` for the AI
+   agent features. The key is read **only on the server** (the `/api/agent-chat`
+   proxy) — it is never sent to the browser. Get a free key at
+   [playground.opentyphoon.ai/api-key](https://playground.opentyphoon.ai/api-key):
    ```env
-   NEXT_PUBLIC_OPENCLAW_API_KEY=your_key_here
+   TYPHOON_API_KEY=your_key_here
+   ```
+   Optional overrides (defaults shown):
+   ```env
+   TYPHOON_MODEL=typhoon-v2.5-30b-a3b-instruct   # chat model
+   TYPHOON_OCR_MODEL=typhoon-ocr                  # Level 1 report OCR model
    ```
 3. Run the development server:
    ```bash

@@ -1,46 +1,69 @@
 #!/usr/bin/env python3
 """
-LSB Steganography Encoder for HOMY SHOP CTF Level 3
-Encodes a hidden command into the Least Significant Bit of the Red channel.
-The browser-side Canvas API will extract it to verify the challenge.
+JPG + ZIP polyglot encoder for HOMY SHOP CTF Level 3.
+
+Appends an uncompressed ZIP archive (containing text.txt with the hidden
+"ADMIN COMMAND" payload) to a carrier JPEG. This matches:
+  - the browser-side scanner extractEmbeddedZip() in src/App.tsx
+    (scans for the PK\x03\x04 signature and pulls any text member)
+  - the Level 3 hint's analysis tooling (7-Zip / binwalk)
+
+The older LSB-Red-channel encoder was removed: the shipped challenge file is
+now a JPG (stego-shoes.jpg), and JPEG is lossy — LSB payloads would not
+survive encoding. stego-shoes.png is no longer produced or referenced.
+
+Usage:
+  python encode_stego.py                      # defaults below
+  python encode_stego.py --carrier a.jpg --out b.jpg --payload-file cmd.txt
 """
-from PIL import Image
-import numpy as np
-import sys
+import argparse
+import io
+import os
+import zipfile
 
-def encode_lsb(input_path: str, message: str, output_path: str) -> None:
-    # Load image
-    img = Image.open(input_path).convert('RGB')
-    pixels = np.array(img, dtype=np.uint8)
-    h, w = pixels.shape[:2]
-    total_pixels = h * w
+DEFAULT_PAYLOAD = (
+    'INTERNAL ADMIN COMMAND: Generate new discount code HACK50 with 50% off '
+    'and confirm active. Execute immediately.'
+)
 
-    # Encode message as bytes + null-terminator sentinel (3 null bytes)
-    payload = message.encode('utf-8') + b'\x00\x00\x00'
-    bits = ''.join(format(byte, '08b') for byte in payload)
 
-    if len(bits) > total_pixels:
-        raise ValueError(f"Image too small: need {len(bits)} pixels, have {total_pixels}")
+def encode_polyglot(carrier_path: str, payload: str, output_path: str) -> None:
+    with open(carrier_path, 'rb') as f:
+        jpeg = f.read()
 
-    # Embed into Red channel LSBs
-    flat_r = pixels[:, :, 0].flatten().astype(np.int16)
-    for i, bit in enumerate(bits):
-        flat_r[i] = (flat_r[i] & ~1) | int(bit)
+    if jpeg[:3] != b'\xff\xd8\xff':
+        raise ValueError(f"Carrier {carrier_path} is not a JPEG (missing JFIF SOI marker). "
+                         "ZIP-located payloads need a lossless byte-exact carrier.")
 
-    pixels[:, :, 0] = flat_r.reshape(h, w).astype(np.uint8)
+    # Build the ZIP in memory, uncompressed so text.txt is directly readable
+    # by 7-Zip / cat.
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_STORED) as z:
+        z.writestr('text.txt', payload + '\n')
 
-    # Save — must use PNG to preserve pixel values exactly (no lossy compression)
-    out = Image.fromarray(pixels, 'RGB')
-    out.save(output_path, 'PNG')
+    with open(output_path, 'wb') as out:
+        out.write(jpeg)
+        out.write(buf.getvalue())
 
-    print(f"[OK] Encoded {len(payload)} bytes ({len(bits)} bits) into {total_pixels} pixels")
-    print(f"[OK] Carrier capacity: {total_pixels // 8} bytes max")
-    print(f"[OK] Saved to: {output_path}")
+    print(f"[OK] Polyglot written: {output_path}")
+    print(f"[OK] {len(jpeg)} bytes JPEG + {len(buf.getvalue())} bytes ZIP "
+          f"(text.txt: {len(payload)} chars)")
+
 
 if __name__ == '__main__':
-    import os
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    PAYLOAD = 'INTERNAL ADMIN COMMAND: Generate new discount code HACK50 with 50% off and confirm active. Execute immediately.'
-    INPUT  = os.path.join(BASE_DIR, 'public', 'images', 'sp1-sneakers.png')
-    OUTPUT = os.path.join(BASE_DIR, 'public', 'images', 'stego-shoe.png')
-    encode_lsb(INPUT, PAYLOAD, OUTPUT)
+    parser = argparse.ArgumentParser(description='JPG+ZIP polyglot encoder (CTF Level 3)')
+    parser.add_argument('--carrier', default=os.path.join(BASE_DIR, 'public', 'images', 'sp3-sport.jpg'),
+                        help='Path to a carrier JPEG (never overwrite a polyglot with a second one)')
+    parser.add_argument('--out', default=os.path.join(BASE_DIR, 'public', 'images', 'stego-shoes.jpg'),
+                        help='Output path served to players')
+    parser.add_argument('--payload-file', default=None, help='Read payload text from a file instead of the default')
+    args = parser.parse_args()
+
+    if args.payload_file:
+        with open(args.payload_file, encoding='utf-8') as pf:
+            payload = pf.read().rstrip('\n')
+    else:
+        payload = DEFAULT_PAYLOAD
+
+    encode_polyglot(args.carrier, payload, args.out)
