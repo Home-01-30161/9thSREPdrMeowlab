@@ -5,3 +5,5 @@ This repository belongs to Pongchai Boonyawan (นายปองชัย บ�
 All the major projects from NECTEC are stored in this repo
 
 You can see the update of Unsung Planner at https://github.com/Home-01-30161/unsungplanner which will be updated for product scaling.
+
+Unsung Planner product avialable on https://unsungplanner.pongchai-bw.workers.dev
